@@ -10,6 +10,7 @@
       startPlugins = with pkgs;
       with vimPlugins; [
         vim-pencil
+        twilight-nvim
         barbar-nvim
         zen-mode-nvim
         render-markdown-nvim
@@ -50,6 +51,14 @@
         format.enable = true;
         lsp.enable = true;
         treesitter.enable = true;
+      };
+
+      languages.lua = {
+        enable = true;
+        extraDiagnostics.enable = true;
+        extraDiagnostics.types = ["luacheck"];
+        format.enable = true;
+        lsp.enable = true;
       };
 
       languages.nix = {

@@ -3,6 +3,7 @@ with pkgs;
   mkShell {
     buildInputs = [
       tree
+      starship
       nixpkgs-fmt
       ncurses
       zellij
