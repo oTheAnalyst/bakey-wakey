@@ -2,7 +2,31 @@
   config = {
     # Your settings need to go into the settings attribute set
     # most settings are documented in the appendix
-    vim = {
+    vim = let
+      dataform-nvim-pkg = {
+        vimUtils,
+        fetchFromGitHub,
+      }:
+        vimUtils.buildVimPlugin {
+          pname = "dataform-nvim";
+          version = "0-unstable-2025-06-16";
+
+          src = fetchFromGitHub {
+            owner = "magal1337";
+            repo = "dataform.nvim";
+            rev = "43a5f9e17275325ae32e5248c6f21636418e2018";
+            hash = "sha256-HA6E9L6U37Btb/dDgtm7du97/fae5IawCSg/nmB/tqg=";
+          };
+
+          meta = {
+            description = "Dataform Core Plugin for Neovim";
+            homepage = "https://github.com/magal1337/dataform.nvim";
+            license = pkgs.lib.licenses.mit;
+            #maintainers = with pkgs.lib.maintainers; [];
+          };
+        };
+      dataform-nvim = pkgs.callPackage dataform-nvim-pkg {};
+    in {
       autopairs.nvim-autopairs.enable = true;
       ui.noice.enable = false;
       binds.whichKey.enable = true;
@@ -10,6 +34,7 @@
       startPlugins = with pkgs;
       with vimPlugins; [
         vim-pencil
+        dataform-nvim
         twilight-nvim
         barbar-nvim
         zen-mode-nvim
