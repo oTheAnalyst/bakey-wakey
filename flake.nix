@@ -3,7 +3,9 @@
 
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
+    rnvim.url = "github:R-nvim/R.nvim";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
     nvf = {
       url = "github:notashelf/nvf";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -13,6 +15,7 @@
   outputs = inputs @ {
     flake-parts,
     nvf,
+    rnvim,
     ...
   }:
     flake-parts.lib.mkFlake {inherit inputs;} {
@@ -30,6 +33,9 @@
 
         packages.default =
           (nvf.lib.neovimConfiguration {
+            extraSpecialArgs = {
+              inherit rnvim;
+            };
             inherit pkgs;
             modules = [./modules/nvf.nix];
           }).neovim;

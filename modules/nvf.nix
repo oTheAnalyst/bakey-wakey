@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  rnvim,
+  ...
+}: {
   config = {
     # Your settings need to go into the settings attribute set
     # most settings are documented in the appendix
@@ -28,11 +32,13 @@
       dataform-nvim = pkgs.callPackage dataform-nvim-pkg {};
     in {
       autopairs.nvim-autopairs.enable = true;
+      treesitter.context.enable = true;
+      treesitter.enable = true;
       ui.noice.enable = false;
       binds.whichKey.enable = true;
       telescope.enable = true;
-      startPlugins = with pkgs;
-      with vimPlugins; [
+      startPlugins = with pkgs.vimPlugins; [
+        rnvim.packages.${pkgs.stdenv.hostPlatform.system}.default
         vim-pencil
         dataform-nvim
         twilight-nvim
@@ -66,14 +72,12 @@
       };
 
       languages = {
-        enableLSP = true;
         enableTreesitter = true;
       };
 
       languages.sql = {
         enable = true;
         format.enable = true;
-        lsp.enable = true;
       };
 
       languages.lua = {
@@ -81,7 +85,6 @@
         extraDiagnostics.enable = true;
         extraDiagnostics.types = ["luacheck"];
         format.enable = true;
-        lsp.enable = true;
       };
 
       languages.nix = {
@@ -89,14 +92,18 @@
         extraDiagnostics.enable = true;
         lsp.servers = ["nixd"];
         format.enable = true;
-        lsp.enable = true;
       };
 
       languages.python = {
         enable = true;
         dap.enable = true;
         format.enable = true;
-        lsp.enable = true;
+      };
+
+      languages.r = {
+        enable = true;
+        format.enable = true;
+        treesitter.enable = true;
       };
 
       statusline.lualine.enable = true;
