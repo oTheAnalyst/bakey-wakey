@@ -32,8 +32,6 @@
       dataform-nvim = pkgs.callPackage dataform-nvim-pkg {};
     in {
       autopairs.nvim-autopairs.enable = true;
-      treesitter.context.enable = true;
-      treesitter.enable = true;
       ui.noice.enable = false;
       binds.whichKey.enable = true;
       telescope.enable = true;
@@ -54,8 +52,21 @@
         name = "tokyonight";
         style = "night";
       };
+      treesitter = {
+        context.enable = true;
+        enable = true;
+        highlight.enable = true;
+      };
+      clipboard = {
+        enable = true;
+        providers.wl-copy.enable = true;
+        registers = "unnamedplus";
+      };
 
-      utility = {icon-picker.enable = true;};
+      utility = {
+        icon-picker.enable = true;
+        yazi-nvim.enable = true;
+      };
 
       visuals = {
         nvim-scrollbar.enable = true;
@@ -73,6 +84,7 @@
 
       languages = {
         enableTreesitter = true;
+        yaml.enable = true;
       };
 
       languages.sql = {
@@ -94,6 +106,13 @@
         format.enable = true;
       };
 
+      languages.yaml = {
+        treesitter.enable = true;
+      };
+
+      languages.bash = {
+        treesitter.enable = true;
+      };
       languages.python = {
         enable = true;
         dap.enable = true;
