@@ -5,6 +5,7 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     rnvim.url = "github:R-nvim/R.nvim";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    wrappers.url = "github:lassulus/wrappers";
 
     nvf = {
       url = "github:notashelf/nvf";
@@ -14,6 +15,7 @@
 
   outputs = inputs @ {
     flake-parts,
+    wrappers,
     nvf,
     rnvim,
     ...
