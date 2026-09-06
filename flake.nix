@@ -3,6 +3,8 @@
 
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
+
+    # In your flake.nix
     rnvim.url = "github:R-nvim/R.nvim";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     wrappers.url = "github:lassulus/wrappers";

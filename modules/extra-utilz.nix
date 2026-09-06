@@ -2,9 +2,10 @@
 with pkgs;
   mkShell {
     packages = [
-      zellij
+      (writeShellScriptBin "y" ''exec yazi "$@" '')
       yazi
-      ipfetch
-      fastfetch
+      zellij
+      lazygit
+      zathura
     ];
   }
