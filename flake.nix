@@ -15,7 +15,6 @@
 
   outputs = inputs @ {
     flake-parts,
-    wrappers,
     nvf,
     rnvim,
     ...
@@ -31,8 +30,9 @@
           inherit system;
           config.allowUnfree = true;
         };
-        devShells.default = import ./modules/shell.nix {inherit pkgs;};
-
+        devShells.default = import ./modules/default.nix {inherit pkgs;};
+        devShells.extra-utilz = import ./modules/extra-utilz.nix {inherit pkgs;};
+        /**/
         packages.default =
           (nvf.lib.neovimConfiguration {
             extraSpecialArgs = {
