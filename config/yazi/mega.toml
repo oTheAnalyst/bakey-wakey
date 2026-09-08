@@ -1,0 +1,57 @@
+[[mgr.prepend_keymap]]
+desc = "Fuzzy Find Files"
+on = ["z"]
+run = "plugin fuzzy-search -- fd --TL=3"
+
+[[mgr.prepend_keymap]]
+desc = "Ripgrep Search"
+on = ["<S-s>"]
+run = "plugin fuzzy-search -- rg --TL=3"
+
+[[mgr.prepend_keymap]]
+desc = "Zoxide Search"
+on = ["<S-z>"]
+run = "plugin fuzzy-search -- zoxide --TL=3"
+
+[opener]
+pdff = [
+    { run = 'zathura "$@"', orphan = true, desc = "zathura", for = "unix" },
+	]
+chrom = [
+    { run = 'chromium "$@"', orphan = true, desc = "chromium", for = "unix" },
+	]
+play = [
+    { run = 'vlc "$@"', orphan = true, for = "unix" },
+  ]
+data = [
+    { run = 'soffice "$@"', orphan = true, for = "unix" },
+  ]
+
+directory = [
+    { run = 'gwenview "$@"', orphan = true, for = "unix" },
+  ]
+vault = [
+    { run = 'obsidian "$@"', orphan = true, for = "unix" },
+]
+[open]
+prepend_rules = [
+##{mime = "application/pdf", use = [ "pdff", "reveal" ] },
+{mime = "~/books/more_books/*", use =  "directory"  },
+{mime = "videos/*", use =  "play"  },
+{url = "*.mkv", use =  "play" },
+{url = "*.pdf", use =  "pdff" },
+{url = "*.md", use =  "vault" },
+{url = "*.epub", use =  "pdff" },
+{url = "*.csv", use =  "data" },
+{url = "*.html", use =  "chrom" },
+{url = "*.xlsx", use =  "data" },
+{url = "*.xspf", use =  "play" },
+{url = "*.webp", use =  "directory" },
+{url = "*.png", use =  "directory" },
+{url = "*.jpg", use =  "directory" },
+#{mime = "*/", use = ["director"] },
+]
+append_rules = [
+
+{mime = "~/books/more_books/*", use =  "directory"  },
+]

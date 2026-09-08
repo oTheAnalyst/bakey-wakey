@@ -3,8 +3,11 @@
 
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
+
+    # In your flake.nix
     rnvim.url = "github:R-nvim/R.nvim";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    wrappers.url = "github:lassulus/wrappers";
 
     nvf = {
       url = "github:notashelf/nvf";
@@ -29,8 +32,9 @@
           inherit system;
           config.allowUnfree = true;
         };
-        devShells.default = import ./modules/shell.nix {inherit pkgs;};
-
+        devShells.default = import ./modules/default.nix {inherit pkgs;};
+        devShells.extra-utilz = import ./modules/extra-utilz.nix {inherit pkgs;};
+        /**/
         packages.default =
           (nvf.lib.neovimConfiguration {
             extraSpecialArgs = {
