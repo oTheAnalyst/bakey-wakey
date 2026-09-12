@@ -16,6 +16,7 @@
   };
 
   outputs = inputs @ {
+    self,
     flake-parts,
     nvf,
     rnvim,
@@ -32,9 +33,45 @@
           inherit system;
           config.allowUnfree = true;
         };
-        devShells.default = import ./modules/default.nix {inherit pkgs;};
-        devShells.extra-utilz = import ./modules/extra-utilz.nix {inherit pkgs;};
-        /**/
+        devShells = {
+          default = pkgs.mkShell {
+            packages = with pkgs; [
+              (symlinkJoin {
+                name = "starship-bakey";
+                paths = [starship];
+                nativeBuildInputs = [makeWrapper];
+                postBuild = ''
+                  wrapProgram $out/bin/starship \
+                      --set STARSHIP_CONFIG "${toString ./config/starship.toml}"
+                '';
+              })
+              direnv
+              nix-your-shell
+              nixpkgs-fmt
+              lazygit
+              ncurses
+              ripgrep
+              git
+              gradle
+              fish
+              fzf
+            ];
+          };
+          extra-utilz = pkgs.mkShell {
+            packages = with pkgs; [
+              (writeShellScriptBin "y" ''exec yazi "$@" '')
+              yazi
+              tree
+              duckdb
+              zellij
+              bat
+              lsd
+            ];
+          };
+          full-shell = pkgs.mkShell {
+            inputsFrom = with self.devShells.${system}; [default extra-utilz];
+          };
+        };
         packages.default =
           (nvf.lib.neovimConfiguration {
             extraSpecialArgs = {
