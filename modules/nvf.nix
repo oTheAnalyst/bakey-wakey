@@ -37,12 +37,29 @@
       telescope.enable = true;
       startPlugins = with pkgs.vimPlugins; [
         rnvim.packages.${pkgs.stdenv.hostPlatform.system}.default
+        barbar-nvim
         vim-pencil
         dataform-nvim
         twilight-nvim
-        barbar-nvim
         zen-mode-nvim
         render-markdown-nvim
+      ];
+
+      keymaps = [
+        {
+          key = "gT";
+          mode = ["n"];
+          action = "<Cmd>BufferNext<CR>";
+          silent = true;
+          desc = "NextTab";
+        }
+        {
+          key = "gt";
+          mode = ["n"];
+          action = "<Cmd>BufferPrevious<CR>";
+          silent = true;
+          desc = "PreviousTab";
+        }
       ];
 
       viAlias = false;
