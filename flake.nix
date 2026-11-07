@@ -37,6 +37,7 @@
       devShells = forEachPkgs (
         pkgs: system: {
           default = pkgs.mkShell {
+
             packages =
               with pkgs;
               [
@@ -55,6 +56,7 @@
                 fish
               ]);
 
+
             shellHook =
               #bash
               ''
@@ -64,7 +66,7 @@
                   -z ''${BASH_EXECUTION_STRING} # Bash wasn't started in script mode (BASH_EXECUTION_STRING is empty)
                 ]]; then
                   shopt -q login_shell && LOGIN_OPTION='--login' || LOGIN_OPTION=""
-                  exec ${lib.getExe self.packages.x86_64-linux.fish} $LOGIN_OPTION
+g                  exec ${lib.getExe self.packages.x86_64-linux.fish} $LOGIN_OPTION
 
                 fi
               '';
