@@ -37,30 +37,34 @@
       devShells = forEachPkgs (
         pkgs: system: {
           default = pkgs.mkShell {
-            packages = with pkgs; [
-              self.packages.x86_64-linux.starship
-              direnv
-              nix-your-shell
-              nixpkgs-fmt
-              lazygit
-              ncurses
-              ripgrep
-              git
-              gradle
-              fish
-              fzf
-            ];
+            packages =
+              with pkgs;
+              [
+                direnv
+                nix-your-shell
+                nixpkgs-fmt
+                lazygit
+                ncurses
+                ripgrep
+                git
+                gradle
+                fzf
+              ]
+              ++ (with self.packages.${system}; [
+                starship
+                fish
+              ]);
+
             shellHook =
               #bash
               ''
                 PARENT_PROCESS=$(${pkgs.procps}/bin/ps --no-header --pid=$PPID --format=comm)
                 if [[ # Only exec fish if:
-                  $PARENT_PROCESS != "fish" && # The parent process isn't already fish
+                  $PARENT_PROCESS != ${self.packages.x86_64-linux.fish} && # The parent process isn't already fish
                   -z ''${BASH_EXECUTION_STRING} # Bash wasn't started in script mode (BASH_EXECUTION_STRING is empty)
                 ]]; then
                   shopt -q login_shell && LOGIN_OPTION='--login' || LOGIN_OPTION=""
-                  exec ${lib.getExe pkgs.fish} $LOGIN_OPTION
-                  {self.packages.x86_64-linux.starship}/bin/starship init fish | source
+                  exec ${lib.getExe self.packages.x86_64-linux.fish} $LOGIN_OPTION
 
                 fi
               '';
@@ -86,6 +90,19 @@
       );
       packages = forEachPkgs (
         pkgs: system: {
+          fish = wrappers.lib.evalPackage (
+            { wlib, ... }: {
+              inherit pkgs;
+              imports = [ wlib.wrapperModules.fish ];
+              shellAliases = {
+                nvf = "nix run github:oTheAnalyst/bakey-wakey#nvf_raf";
+                tts = "echo hello";
+              };
+              configFile.content = "eval (zellij setup --generate-auto-start fish | string collect) \n
+                                                                starship init fish | source";
+
+            }
+          );
 
           starship = wrappers.lib.evalPackage (
             {
