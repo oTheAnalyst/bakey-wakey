@@ -38,7 +38,7 @@
         pkgs: system: {
           default = pkgs.mkShell {
             packages = with pkgs; [
-              starship
+              self.packages.x86_64-linux.starship
               direnv
               nix-your-shell
               nixpkgs-fmt
@@ -60,6 +60,8 @@
                 ]]; then
                   shopt -q login_shell && LOGIN_OPTION='--login' || LOGIN_OPTION=""
                   exec ${lib.getExe pkgs.fish} $LOGIN_OPTION
+                  {self.packages.x86_64-linux.starship}/bin/starship init fish | source
+
                 fi
               '';
           };
@@ -97,22 +99,7 @@
 
                 "$schema" = "https://starship.rs/config-schema.json";
 
-                format = ''
-                  $username\
-                  $hostname\
-                  $directory\
-                  $gcloud\
-                  $aws\
-                  $git_branch\
-                  $git_state\
-                  $git_status\
-                  $cmd_duration\
-                  $line_break\
-                  $aws\
-                  $python\
-                  $character
-                '';
-
+                format = "$username$hostname$directory$gcloud$aws$git_branch$git_state$git_status$cmd_duration\n$python$character";
                 right_format = "$nix_shell";
 
                 directory = {
@@ -160,7 +147,6 @@
 
                 glcoud = {
                   symbol = " ";
-                  detect_env_vars = [ "~/.config/gcloud/active_config" ];
                 };
 
                 aws = {
