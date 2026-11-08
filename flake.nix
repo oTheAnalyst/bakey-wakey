@@ -94,6 +94,9 @@
                 fish_config theme choose default
                 eval (zellij setup --generate-auto-start fish | string collect) 
                 ${lib.getExe self.packages.${system}.starship} init fish | source
+                if command -q nix-your-shell
+                  nix-your-shell fish | source
+                end
               '';
               completionFiles = { };
 

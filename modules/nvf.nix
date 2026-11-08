@@ -111,7 +111,12 @@
           cellular-automaton.enable = false;
         };
 
-        mini.indentscope.enable = true;
+        mini = {
+          indentscope.enable = true;
+          surround.enable = true;
+          ai.enable = true;
+        };
+
         languages = {
           enableTreesitter = true;
           yaml.enable = true;
@@ -145,6 +150,7 @@
         languages.bash = {
           treesitter.enable = true;
         };
+
         languages.python = {
           enable = true;
           dap.enable = true;
