@@ -64,6 +64,16 @@
           render-markdown-nvim
         ];
 
+        opts = {
+          tabstop = 2;
+          softtabstop = 2;
+          shiftwidth = 2; # Size of an indent
+          shiftround = true; # Round indent
+          smartindent = true; # Insert indents automatically
+          wrap = false;
+          autoindent = true;
+        };
+
         viAlias = false;
         vimAlias = true;
         theme = {
@@ -71,10 +81,13 @@
           name = "tokyonight";
           style = "night";
         };
+
         treesitter = {
           enable = true;
+          indent.enable = true;
           highlight.enable = true;
         };
+
         clipboard = {
           enable = true;
           providers.wl-copy.enable = true;
@@ -93,22 +106,12 @@
           cinnamon-nvim.enable = true;
           fidget-nvim.enable = true;
           highlight-undo.enable = true;
-          blink-indent = {
-            enable = true;
-            setupOpts = {
-              static.char = "┆";
-              scope = {
-                indent_at_cursor = true;
-                char = "┃";
-                highlights = [ ];
-              };
-            };
-          };
 
           # Fun
           cellular-automaton.enable = false;
         };
 
+        mini.indentscope.enable = true;
         languages = {
           enableTreesitter = true;
           yaml.enable = true;
@@ -127,6 +130,7 @@
         };
 
         languages.nix = {
+          treesitter.enable = true;
           enable = true;
           extraDiagnostics.enable = true;
           lsp.servers = [ "nixd" ];
@@ -159,6 +163,7 @@
         };
 
         statusline.lualine.enable = true;
+
         autocomplete = {
           blink-cmp.enable = true;
         };
