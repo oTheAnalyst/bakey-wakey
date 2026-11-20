@@ -59,7 +59,10 @@
 
             shellHook =
               #bash
-              " fish ";
+              ''
+                ip link set dev eth0 mtu 1400
+                fish 
+              '';
           };
           extra-utilz = pkgs.mkShell {
             packages = with pkgs; [
@@ -89,8 +92,16 @@
               shellAliases = {
                 nvf = "nix run github:oTheAnalyst/bakey-wakey#nvf_raf";
                 tts = "echo hello";
+                l = "lsd -l";
+                la = "lsd -a";
+                lla = "lsd -la";
+                lt = "lsd --tree";
+
               };
               configFile.content = ''
+                zoxide init fish | source
+                set -e fish_private_mode
+                set -g fish_history fish
                 fish_config theme choose default
                 eval (zellij setup --generate-auto-start fish | string collect) 
                 ${lib.getExe self.packages.${system}.starship} init fish | source
