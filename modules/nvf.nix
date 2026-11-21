@@ -48,6 +48,28 @@
             action = "<Cmd>BufferPrevious<CR>";
             desc = "Previous Buffer";
           }
+          {
+            key = "<esc>";
+            mode = [
+              "i"
+              "n"
+              "s"
+            ];
+            action = ''
+              function()
+                vim.cmd('noh')
+                return '<esc>'
+              end
+            '';
+            expr = true;
+            lua = true;
+            desc = "Escape and Clear hlsearch";
+
+          }
+          #         vim.keymap.set({ 'i', 'n', 's' }, '<esc>', function()
+          #             vim.cmd('noh')
+          #             return '<esc>'
+          #             end, { expr = true, desc = 'Escape and Clear hlsearch' })
         ];
         autopairs.nvim-autopairs.enable = true;
         ui.noice.enable = false;
