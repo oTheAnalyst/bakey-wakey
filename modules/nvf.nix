@@ -96,6 +96,8 @@
           autoindent = true;
         };
 
+        undoFile.enable = true;
+
         viAlias = false;
         vimAlias = true;
         theme = {
