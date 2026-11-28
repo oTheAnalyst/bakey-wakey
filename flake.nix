@@ -23,6 +23,8 @@
     {
       self,
       wrappers,
+      wrapperModules,
+      wlib,
       nvf,
       rnvim,
       nixpkgs,
@@ -39,172 +41,202 @@
           }) system
         ) nixpkgs.legacyPackages;
       inherit (nixpkgs) lib;
+
     in
-    {
-      devShells = forEachPkgs (
-        pkgs: system: {
-          default = pkgs.mkShell {
 
-            packages =
-              with pkgs;
-              [
-                direnv
-                nix-your-shell
-                nixpkgs-fmt
-                lazygit
-                ncurses
-                ripgrep
-                zoxide
-                git
-                gradle
-                fzf
-              ]
-              ++ (with self.packages.${system}; [
-                starship
-                fish
-              ]);
-
-            shellHook =
-              #bash
-              ''
-                ip link set dev eth0 mtu 1400
-                fish 
-              '';
+    wlib.wrapModule
+      ({ config, ... }: {
+        options = {
+          settings = lib.mkOption {
+            type = lib.types.str;
+            description = ''
+              				Settings in KDL format
+              				See <https://zellij.dev/documentation/configuration.html>
+              			'';
           };
-          extra-utilz = pkgs.mkShell {
-            packages = with pkgs; [
-              (writeShellScriptBin "y" ''exec yazi "$@" '')
-              yazi
-              tree
-              duckdb
-              zellij
-              bat
-              lsd
-            ];
+        };
+
+        config = {
+          package = lib.mkDefault config.pkgs.zellij;
+          env = {
+            ZELLIJ_CONFIG_FILE = builtins.toString (config.pkgs.writeText "zellij.kdl" config.settings);
           };
-          full-shell = pkgs.mkShell {
-            inputsFrom = with self.devShells.${system}; [
-              default
-              extra-utilz
-            ];
-          };
-        }
-      );
-      packages = forEachPkgs (
-        pkgs: system: {
-          fish = wrappers.lib.evalPackage (
-            { wlib, ... }: {
+        };
+      })
+
+      {
+        devShells = forEachPkgs (
+          pkgs: system: {
+            default = pkgs.mkShell {
+
+              packages =
+                with pkgs;
+                [
+                  direnv
+                  nix-your-shell
+                  nixpkgs-fmt
+                  lazygit
+                  ncurses
+                  ripgrep
+                  zoxide
+                  git
+                  gradle
+                  fzf
+                ]
+                ++ (with self.packages.${system}; [
+                  starship
+                  fish
+                ]);
+
+              shellHook =
+                #bash
+                ''
+                  ip link set dev eth0 mtu 1400
+                  fish 
+                '';
+            };
+            extra-utilz = pkgs.mkShell {
+              packages = with pkgs; [
+                (writeShellScriptBin "y" ''exec yazi "$@" '')
+                yazi
+                tree
+                duckdb
+                zellij
+                bat
+                lsd
+              ];
+            };
+            full-shell = pkgs.mkShell {
+              inputsFrom = with self.devShells.${system}; [
+                default
+                extra-utilz
+              ];
+            };
+          }
+        );
+        packages = forEachPkgs (
+          pkgs: system: {
+            fish = wrappers.lib.evalPackage (
+              { wlib, ... }: {
+                inherit pkgs;
+                imports = [ wlib.wrapperModules.fish ];
+                shellAliases = {
+                  nvf = "nix run github:oTheAnalyst/bakey-wakey#nvf_raf";
+                  tts = "echo hello";
+                  l = "lsd -l";
+                  la = "lsd -a";
+                  lla = "lsd -la";
+                  lt = "lsd --tree";
+
+                };
+                configFile.content = ''
+                  zoxide init fish | source
+                  set -e fish_private_mode
+                  set -g fish_history fish
+                  fish_config theme choose default
+                  eval (zellij setup --generate-auto-start fish | string collect) 
+                  ${lib.getExe self.packages.${system}.starship} init fish | source
+                  if command -q nix-your-shell
+                    nix-your-shell fish | source
+                  end
+                '';
+                completionFiles = { };
+
+              }
+            );
+
+            zellij = wrapperModules.zellij.apply {
               inherit pkgs;
-              imports = [ wlib.wrapperModules.fish ];
-              shellAliases = {
-                nvf = "nix run github:oTheAnalyst/bakey-wakey#nvf_raf";
-                tts = "echo hello";
-                l = "lsd -l";
-                la = "lsd -a";
-                lla = "lsd -la";
-                lt = "lsd --tree";
+              settings = map (path: builtins.readFile path) [
+                ./layouts/3panebig.kdl
+                ./zellij.kdl
+              ];
+            };
 
-              };
-              configFile.content = ''
-                zoxide init fish | source
-                set -e fish_private_mode
-                set -g fish_history fish
-                fish_config theme choose default
-                eval (zellij setup --generate-auto-start fish | string collect) 
-                ${lib.getExe self.packages.${system}.starship} init fish | source
-                if command -q nix-your-shell
-                  nix-your-shell fish | source
-                end
-              '';
-              completionFiles = { };
+            starship = wrappers.lib.evalPackage (
+              {
+                wlib,
+                ...
+              }:
+              {
+                inherit pkgs;
+                imports = [ wlib.wrapperModules.starship ];
+                settings = {
 
-            }
-          );
+                  "$schema" = "https://starship.rs/config-schema.json";
 
-          starship = wrappers.lib.evalPackage (
-            {
-              wlib,
-              ...
-            }:
-            {
-              inherit pkgs;
-              imports = [ wlib.wrapperModules.starship ];
-              settings = {
+                  format = "$username$hostname$directory$gcloud$aws$git_branch$git_state$git_status$cmd_duration\n$python$character";
+                  right_format = "$nix_shell";
 
-                "$schema" = "https://starship.rs/config-schema.json";
+                  directory = {
+                    style = "blue";
+                  };
 
-                format = "$username$hostname$directory$gcloud$aws$git_branch$git_state$git_status$cmd_duration\n$python$character";
-                right_format = "$nix_shell";
+                  character = {
+                    success_symbol = "[❯](purple)";
+                    error_symbol = "[❯](red)";
+                    vimcmd_symbol = "[❮](green)";
+                  };
 
-                directory = {
-                  style = "blue";
+                  git_branch = {
+                    format = "[$branch]($style)";
+                  };
+
+                  git_status = {
+                    format = "[[(*$conflicted$untracked$modified$staged$renamed$deleted)](218) ($ahead_behind$stashed)]($style)";
+                    style = "cyan";
+                    conflicted = "​";
+                    untracked = "​";
+                    modified = "​";
+                    staged = "​";
+                    renamed = "​";
+                    deleted = "​";
+                    stashed = "≡";
+                  };
+
+                  git_state = {
+                    format = "\([$state( $progress_current/$progress_total)]($style)\) ";
+                    style = "bright-black";
+                  };
+
+                  cmd_duration = {
+                    format = "[$duration]($style) ";
+                    style = "yellow";
+                  };
+
+                  python = {
+                    format = "[$virtualenv]($style) ";
+                    style = "bright-black";
+                    detect_extensions = [ ];
+                    detect_files = [ ];
+                  };
+
+                  gcloud = {
+                    format = "on [$symbol$project]($style) ";
+                    symbol = " ";
+                  };
+
+                  aws = {
+
+                    symbol = "  ";
+                  };
+
+                  nix_shell = {
+                    format = "[$symbol]($style) ";
+                    symbol = " ";
+                  };
                 };
-
-                character = {
-                  success_symbol = "[❯](purple)";
-                  error_symbol = "[❯](red)";
-                  vimcmd_symbol = "[❮](green)";
+              }
+            );
+            nvf_raf =
+              (nvf.lib.neovimConfiguration {
+                extraSpecialArgs = {
+                  inherit rnvim;
                 };
-
-                git_branch = {
-                  format = "[$branch]($style)";
-                };
-
-                git_status = {
-                  format = "[[(*$conflicted$untracked$modified$staged$renamed$deleted)](218) ($ahead_behind$stashed)]($style)";
-                  style = "cyan";
-                  conflicted = "​";
-                  untracked = "​";
-                  modified = "​";
-                  staged = "​";
-                  renamed = "​";
-                  deleted = "​";
-                  stashed = "≡";
-                };
-
-                git_state = {
-                  format = "\([$state( $progress_current/$progress_total)]($style)\) ";
-                  style = "bright-black";
-                };
-
-                cmd_duration = {
-                  format = "[$duration]($style) ";
-                  style = "yellow";
-                };
-
-                python = {
-                  format = "[$virtualenv]($style) ";
-                  style = "bright-black";
-                  detect_extensions = [ ];
-                  detect_files = [ ];
-                };
-
-                gcloud = {
-                  format = "on [$symbol$project]($style) ";
-                  symbol = " ";
-                };
-
-                aws = {
-
-                  symbol = "  ";
-                };
-
-                nix_shell = {
-                  format = "[$symbol]($style) ";
-                  symbol = " ";
-                };
-              };
-            }
-          );
-          nvf_raf =
-            (nvf.lib.neovimConfiguration {
-              extraSpecialArgs = {
-                inherit rnvim;
-              };
-              inherit pkgs;
-              modules = [ ./modules/nvf.nix ];
-            }).neovim;
-        }
-      );
-    };
+                inherit pkgs;
+                modules = [ ./modules/nvf.nix ];
+              }).neovim;
+          }
+        );
+      };
 }
